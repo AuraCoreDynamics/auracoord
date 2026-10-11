@@ -1,0 +1,31 @@
+{
+  "$schema": "https://auracore.dynamics/schemas/aurarouter-service-v1.json",
+  "service_id": "auracoord",
+  "name": "AuraCoord Geodetic & Military Coordinate Conversion Engine",
+  "version": "1.0.0",
+  "domain": "geospatial-coordinates",
+  "description": "Sovereign geodetic Military Spatial Procedures (MSPs) for WGS84, MGRS, UTM, DMS, DDM, and Decimal Degrees conversion and parsing.",
+  "endpoint": "http://0.0.0.0:7087",
+  "port": 7087,
+  "semantic_routes": [
+    {
+      "intent": "coordinate_convert",
+      "path": "/api/coord/convert",
+      "method": "GET",
+      "description": "Convert latitude and longitude to all supported geodetic formats (DD, DMS, DDM, MGRS, UTM)."
+    },
+    {
+      "intent": "coordinate_search",
+      "path": "/api/coord/search",
+      "method": "GET",
+      "description": "Parse unstructured or military coordinate string and return normalized geodetic position."
+    },
+    {
+      "intent": "coordinate_parse_batch",
+      "path": "/api/coord/parse",
+      "method": "POST",
+      "description": "Post body containing coordinate text for high-precision parsing and normalization."
+    }
+  ],
+  "dependencies": []
+}
