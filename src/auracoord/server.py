@@ -88,7 +88,54 @@ class AuraCoordHandler(BaseHTTPRequestHandler):
         self._send_json(404, {"error": "Endpoint not found"})
 
 
-def run_server(port: int = 7087, host: str = "0.0.0.0"):
+try:
+    from auragrid import auragrid_service, auragrid_method
+except ImportError:
+    def auragrid_service(name: str = "", description: str = ""):
+        def deco(cls):
+            cls._service_name = name
+            cls._service_description = description
+            return cls
+        return deco
+
+    def auragrid_method(name: str = ""):
+        def deco(fn):
+            fn._method_name = name
+            return fn
+        return deco
+
+
+@auragrid_service(name="CoordinateConverter", description="Coordinate conversion between WGS84, MGRS, UTM, and DMS")
+class AuraCoordService:
+    """AuraGrid MAS for coordinate parsing and conversion."""
+
+    @auragrid_method(name="ConvertCoordinate")
+    def convert(self, lat: float, lon: float) -> dict:
+        return format_result(lat, lon, "DecimalDegrees")
+
+    @auragrid_method(name="ParseCoordinate")
+    def parse(self, text: str) -> dict:
+        res = parse_any_coordinate(text)
+        if not res:
+            raise ValueError(f"Unable to parse coordinate: {text}")
+        return res
+
+    @auragrid_method(name="GetHealth")
+    def get_health(self) -> dict:
+        return {
+            "status": "Healthy",
+            "service": "AuraCoord",
+            "version": "1.0.0",
+            "standards": ["WGS84", "MGRS", "UTM", "DMS"],
+        }
+
+    ConvertCoordinate = convert
+    ParseCoordinate = parse
+    GetHealth = get_health
+
+
+def run_server(port: int = 7098, host: str = "0.0.0.0"):
+    """Standalone debug server (avoiding AuraGrid TLS port 7087)."""
     server_address = (host, port)
     httpd = HTTPServer(server_address, AuraCoordHandler)
     print(f"[AuraCoord] Microservice listening on http://{host}:{port}")

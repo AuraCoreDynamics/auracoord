@@ -53,6 +53,21 @@ class TestCoordinates(unittest.TestCase):
         self.assertEqual(res["detectedFormat"], "MGRS")
         self.assertEqual(res["mgrs"], "18SUJ2345067890")
 
+    def test_mas_service_methods(self):
+        from auracoord.server import AuraCoordService
+
+        service = AuraCoordService()
+        health = service.GetHealth()
+        self.assertEqual(health["status"], "Healthy")
+
+        converted = service.ConvertCoordinate(38.8895, -77.0353)
+        self.assertIn("mgrs", converted)
+        self.assertIn("utm", converted)
+
+        parsed = service.ParseCoordinate("38.8895, -77.0353")
+        self.assertEqual(parsed["detectedFormat"], "DecimalDegrees")
+
 
 if __name__ == "__main__":
     unittest.main()
+
